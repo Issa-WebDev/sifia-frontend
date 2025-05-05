@@ -43,7 +43,7 @@ const RegisterForm: React.FC = () => {
     try {
       toast.info("Creating payment session...");
       const response = await axios.post(
-        "http://localhost:5000/api/payment",
+         `${import.meta.env.VITE_BACKEND_URL}/api/payment`,
         formData
       );
 
