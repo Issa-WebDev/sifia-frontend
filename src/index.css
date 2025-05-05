@@ -5,9 +5,16 @@
 @tailwind components;
 @tailwind utilities;
 
+
+/* html, body {
+  overflow-x: hidden;
+} */
+
 * {
   font-family: "Poppins", sans-serif;
+  box-sizing: border-box;
 }
+
 
 @layer base {
   :root {

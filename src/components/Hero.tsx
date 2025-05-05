@@ -63,7 +63,7 @@ const Hero: React.FC = () => {
       </div>
       
       {/* Overlay design element */}
-      <div className="hidden lg:block absolute bottom-0 right-0 w-1/3 h-1/2 bg-sifia-gold opacity-10 -skew-x-12 translate-x-20"></div>
+      {/* <div className="hidden lg:block absolute bottom-0 right-0 w-1/3 h-1/2 bg-sifia-gold opacity-10 -skew-x-12 translate-x-20"></div> */}
     </div>
   );
 };
