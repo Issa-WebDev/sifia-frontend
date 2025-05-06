@@ -42,7 +42,7 @@ export function calculatePrice(
   );
 }
 
-export function formatPrice(price: number, currency: string = "FCFA"): string {
+export function formatPrice(price: number, currency: string = "XOF"): string {
   // For USD, convert from FCFA and format
   if (currency === "USD") {
     // Approximate conversion rate

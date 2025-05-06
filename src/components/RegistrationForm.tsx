@@ -123,7 +123,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
         packageName:
           selectedPackage.name[language as keyof typeof selectedPackage.name],
         amount: selectedPackage.price.fcfa,
-        currency: "FCFA",
+        currency: "XOF",
         language,
       };
 
