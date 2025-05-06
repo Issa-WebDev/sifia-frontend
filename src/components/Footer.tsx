@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
           <div>
             <div className="flex items-center mb-4">
               <img
-                src="/logo.png"
+                src="/logos.png"
                 alt="SIFIA Logo"
                 className="h-8 md:h-12 mr-4"
               />
