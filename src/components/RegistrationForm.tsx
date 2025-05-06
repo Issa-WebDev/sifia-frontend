@@ -10,7 +10,11 @@ import { ChevronRight, ChevronLeft, Check } from "lucide-react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { countries } from "countries-list";
-import { participantTypes, getParticipantTypeById, getPackageById } from "../data/packagesData";
+import {
+  participantTypes,
+  getParticipantTypeById,
+  getPackageById,
+} from "../data/packagesData";
 import { formatPrice } from "../lib/utils";
 
 interface RegistrationFormProps {
@@ -30,12 +34,14 @@ type FormData = {
   additionalInfo: string;
 };
 
-const RegistrationForm: React.FC<RegistrationFormProps> = ({ onRegistrationSuccess }) => {
+const RegistrationForm: React.FC<RegistrationFormProps> = ({
+  onRegistrationSuccess,
+}) => {
   const { t, language } = useLanguage();
   const location = useLocation();
   const [formStep, setFormStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  
+
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -50,23 +56,25 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onRegistrationSucce
   });
 
   // Get countries list for select dropdown
-  const countriesList = Object.entries(countries).map(([code, data]) => ({
-    code,
-    name: data.name,
-  })).sort((a, b) => a.name.localeCompare(b.name));
+  const countriesList = Object.entries(countries)
+    .map(([code, data]) => ({
+      code,
+      name: data.name,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   // Extract package info from URL if present
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const participantTypeId = searchParams.get("type");
     const packageId = searchParams.get("package");
-    
+
     if (participantTypeId) {
-      setFormData(prev => ({ ...prev, participantTypeId }));
+      setFormData((prev) => ({ ...prev, participantTypeId }));
     }
-    
+
     if (packageId) {
-      setFormData(prev => ({ ...prev, packageId }));
+      setFormData((prev) => ({ ...prev, packageId }));
     }
   }, [location.search]);
 
@@ -76,20 +84,20 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onRegistrationSucce
     >
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handlePhoneChange = (value: string) => {
-    setFormData(prev => ({ ...prev, phone: value }));
+    setFormData((prev) => ({ ...prev, phone: value }));
   };
 
   const nextStep = () => {
-    setFormStep(prev => prev + 1);
+    setFormStep((prev) => prev + 1);
     window.scrollTo(0, 0);
   };
 
   const prevStep = () => {
-    setFormStep(prev => prev - 1);
+    setFormStep((prev) => prev - 1);
     window.scrollTo(0, 0);
   };
 
@@ -99,22 +107,29 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onRegistrationSucce
 
     try {
       toast.info(t("creatingPaymentSession"));
-      
+
       // Get the selected package details
-      const selectedPackage = getPackageById(formData.participantTypeId, formData.packageId);
-      const participantType = getParticipantTypeById(formData.participantTypeId);
-      
+      const selectedPackage = getPackageById(
+        formData.participantTypeId,
+        formData.packageId
+      );
+      const participantType = getParticipantTypeById(
+        formData.participantTypeId
+      );
+
       if (!selectedPackage || !participantType) {
         throw new Error("Invalid package selection");
       }
-      
+
       const paymentData = {
         ...formData,
-        participantType: participantType.name[language as keyof typeof participantType.name],
-        packageName: selectedPackage.name[language as keyof typeof selectedPackage.name],
+        participantType:
+          participantType.name[language as keyof typeof participantType.name],
+        packageName:
+          selectedPackage.name[language as keyof typeof selectedPackage.name],
         amount: selectedPackage.price.fcfa,
         currency: "FCFA",
-        language
+        language,
       };
 
       const response = await axios.post(
@@ -124,7 +139,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onRegistrationSucce
 
       const { payment_url } = response.data;
       toast.success(t("redirectingToPayment"));
-      
+
       // Redirect to payment page
       window.location.href = payment_url;
     } catch (error) {
@@ -137,10 +152,13 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onRegistrationSucce
   // Calculate price based on selections
   const calculatePrice = () => {
     if (!formData.participantTypeId || !formData.packageId) return null;
-    
-    const selectedPackage = getPackageById(formData.participantTypeId, formData.packageId);
+
+    const selectedPackage = getPackageById(
+      formData.participantTypeId,
+      formData.packageId
+    );
     if (!selectedPackage) return null;
-    
+
     return selectedPackage.price;
   };
 
@@ -172,15 +190,17 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onRegistrationSucce
           <React.Fragment key={step}>
             <div
               className={`w-10 h-10 rounded-full ${
-                formStep >= step 
-                  ? "bg-sifia-blue" 
-                  : "bg-gray-300"
+                formStep >= step ? "bg-sifia-blue" : "bg-gray-300"
               } text-white flex items-center justify-center font-bold`}
             >
               {formStep > step ? <Check size={20} /> : step}
             </div>
             {step < 4 && (
-              <div className={`h-1 w-12 ${formStep > step ? "bg-sifia-blue" : "bg-gray-300"} mx-2`}></div>
+              <div
+                className={`h-1 w-12 ${
+                  formStep > step ? "bg-sifia-blue" : "bg-gray-300"
+                } mx-2`}
+              ></div>
             )}
           </React.Fragment>
         ))}
@@ -189,8 +209,10 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onRegistrationSucce
   };
 
   const participantType = getParticipantTypeById(formData.participantTypeId);
-  const packageType = getPackageById(formData.participantTypeId, formData.packageId);
-
+  const packageType = getPackageById(
+    formData.participantTypeId,
+    formData.packageId
+  );
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 max-w-3xl mx-auto">
@@ -463,9 +485,12 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onRegistrationSucce
                     {t("phoneLabel")} *
                   </Label>
                   <PhoneInput
-                    country={"ci"} // Default to Côte d'Ivoire
+                    country="ci" // Côte d'Ivoire
                     value={formData.phone}
                     onChange={handlePhoneChange}
+                    enableLongNumbers={true} // Permet plus de 8 chiffres
+                    disableAreaCodes={true} // Optionnel pour désactiver les coupes automatiques
+                    masks={{ ci: "...... ...." }} // Masque pour 10 chiffres
                     inputClass="!w-full !h-10 !rounded-md !border !border-gray-300"
                     containerClass="w-full"
                     buttonClass="!border-gray-300"
