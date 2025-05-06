@@ -485,15 +485,18 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     {t("phoneLabel")} *
                   </Label>
                   <PhoneInput
-                    country="ci" // Côte d'Ivoire
+                    country="ci"
                     value={formData.phone}
                     onChange={handlePhoneChange}
-                    enableLongNumbers={true} // Permet plus de 8 chiffres
-                    disableAreaCodes={true} // Optionnel pour désactiver les coupes automatiques
-                    masks={{ ci: "...... ...." }} // Masque pour 10 chiffres
                     inputClass="!w-full !h-10 !rounded-md !border !border-gray-300"
                     containerClass="w-full"
                     buttonClass="!border-gray-300"
+                    enableAreaCodes={false} // Pour éviter la confusion
+                    countryCodeEditable={false} // Empêche l'utilisateur de modifier le +225
+                    inputProps={{
+                      required: true,
+                      maxLength: 13, // +225xxxxxxxxxx (13 avec le +)
+                    }}
                   />
                 </div>
               </div>
