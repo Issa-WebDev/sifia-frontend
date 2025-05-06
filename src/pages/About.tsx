@@ -45,7 +45,7 @@ const About = () => {
               <div className="relative">
                 <div className="bg-sifia-gold/10 absolute -top-4 -left-4 w-full h-full rounded-lg"></div>
                 <img 
-                  src="https://images.unsplash.com/photo-1560523159-6b681a1e7da9" 
+                  src="apropos.png" 
                   alt="SIFIA Networking" 
                   className="rounded-lg shadow-md object-cover w-full h-80 relative z-10"
                 />

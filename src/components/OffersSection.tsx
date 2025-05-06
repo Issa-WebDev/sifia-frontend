@@ -1,7 +1,7 @@
-
-import React from 'react';
-import { useLanguage } from '../context/LanguageContext';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { useLanguage } from "../context/LanguageContext";
+import { Link } from "react-router-dom";
+import { Globe, UserRound, Handshake, Map } from "lucide-react";
 
 const OfferCard: React.FC<{
   title: string;
@@ -18,7 +18,7 @@ const OfferCard: React.FC<{
     </div>
     <h3 className="text-xl font-bold mb-3 text-sifia-blue">{title}</h3>
     <p className="text-sifia-gray mb-6">{description}</p>
-    <Link 
+    <Link
       to={link}
       className="inline-block text-sifia-blue font-semibold hover:text-sifia-gold transition-colors"
     >
@@ -34,47 +34,44 @@ const OffersSection: React.FC = () => {
     <section className="sifia-section bg-gray-50" id="offers">
       <div className="sifia-container">
         <div className="text-center mb-12">
-          <h2 className="sifia-heading">{t('offersTitle')}</h2>
-          <p className="sifia-subheading">{t('offersSubtitle')}</p>
+          <h2 className="sifia-heading">{t("offersTitle")}</h2>
+          <p className="sifia-subheading">{t("offersSubtitle")}</p>
         </div>
-        
+
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <OfferCard 
-            title={t('visitorTitle')}
-            description={t('visitorDesc')}
-            icon="🧑"
+          <OfferCard
+            title={t("visitorTitle")}
+            description={t("visitorDesc")}
+            icon={<UserRound />}
             link="/offers/visitors"
-            btnText={t('moreInfo')}
+            btnText={t("moreInfo")}
           />
-          <OfferCard 
-            title={t('exhibitorLocalTitle')}
-            description={t('exhibitorLocalDesc')}
-            icon="🏢"
+          <OfferCard
+            title={t("exhibitorLocalTitle")}
+            description={t("exhibitorLocalDesc")}
+            icon={<Map />}
             link="/offers/local-exhibitors"
-            btnText={t('moreInfo')}
+            btnText={t("moreInfo")}
           />
-          <OfferCard 
-            title={t('exhibitorIntTitle')}
-            description={t('exhibitorIntDesc')}
-            icon="🌍"
+          <OfferCard
+            title={t("exhibitorIntTitle")}
+            description={t("exhibitorIntDesc")}
+            icon={<Globe />}
             link="/offers/international-exhibitors"
-            btnText={t('moreInfo')}
+            btnText={t("moreInfo")}
           />
-          <OfferCard 
-            title={t('sponsorTitle')}
-            description={t('sponsorDesc')}
-            icon="🤝"
+          <OfferCard
+            title={t("sponsorTitle")}
+            description={t("sponsorDesc")}
+            icon={<Handshake />}
             link="/offers/sponsors"
-            btnText={t('moreInfo')}
+            btnText={t("moreInfo")}
           />
         </div>
-        
+
         <div className="mt-12 text-center">
-          <Link 
-            to="/register"
-            className="sifia-button-primary"
-          >
-            {t('registerBtn')}
+          <Link to="/register" className="sifia-button-primary">
+            {t("registerBtn")}
           </Link>
         </div>
       </div>

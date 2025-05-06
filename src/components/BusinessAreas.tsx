@@ -38,99 +38,99 @@ const BusinessAreas: React.FC = () => {
 
   const businessSectors = [
     {
-      icon: <Hammer size={32} />,
-      titleKey: 'constructionTitle',
-      catchphraseKey: 'constructionCatchphrase'
+      icon: <Hammer size={32} className="text-[#0A2463]" />,
+      titleKey: "constructionTitle",
+      catchphraseKey: "constructionCatchphrase",
     },
     {
-      icon: <Settings size={32} />,
-      titleKey: 'industrialEngineeringTitle',
-      catchphraseKey: 'industrialEngineeringCatchphrase'
+      icon: <Settings size={32} className="text-[#0A2463]" />,
+      titleKey: "industrialEngineeringTitle",
+      catchphraseKey: "industrialEngineeringCatchphrase",
     },
     {
-      icon: <Settings size={32} />,
-      titleKey: 'advancedMaterialsTitle',
-      catchphraseKey: 'advancedMaterialsCatchphrase'
+      icon: <Settings size={32} className="text-[#0A2463]" />,
+      titleKey: "advancedMaterialsTitle",
+      catchphraseKey: "advancedMaterialsCatchphrase",
     },
     {
-      icon: <Settings size={32} />,
-      titleKey: 'sanitationTitle',
-      catchphraseKey: 'sanitationCatchphrase'
+      icon: <Settings size={32} className="text-[#0A2463]" />,
+      titleKey: "sanitationTitle",
+      catchphraseKey: "sanitationCatchphrase",
     },
     {
-      icon: <Home size={32} />,
-      titleKey: 'realEstateTitle',
-      catchphraseKey: 'realEstateCatchphrase'
+      icon: <Home size={32} className="text-[#0A2463]" />,
+      titleKey: "realEstateTitle",
+      catchphraseKey: "realEstateCatchphrase",
     },
     {
-      icon: <Settings size={32} />,
-      titleKey: 'durableSolutionsTitle',
-      catchphraseKey: 'durableSolutionsCatchphrase'
+      icon: <Settings size={32} className="text-[#0A2463]" />,
+      titleKey: "durableSolutionsTitle",
+      catchphraseKey: "durableSolutionsCatchphrase",
     },
     {
-      icon: <Zap size={32} />,
-      titleKey: 'energySystemsTitle',
-      catchphraseKey: 'energySystemsCatchphrase'
+      icon: <Zap size={32} className="text-[#0A2463]" />,
+      titleKey: "energySystemsTitle",
+      catchphraseKey: "energySystemsCatchphrase",
     },
     {
-      icon: <Settings size={32} />,
-      titleKey: 'businessSolutionsTitle',
-      catchphraseKey: 'businessSolutionsCatchphrase'
+      icon: <Settings size={32} className="text-[#0A2463]" />,
+      titleKey: "businessSolutionsTitle",
+      catchphraseKey: "businessSolutionsCatchphrase",
     },
     {
-      icon: <Building2 size={32} />,
-      titleKey: 'architectureDesignTitle',
-      catchphraseKey: 'architectureDesignCatchphrase'
+      icon: <Building2 size={32} className="text-[#0A2463]" />,
+      titleKey: "architectureDesignTitle",
+      catchphraseKey: "architectureDesignCatchphrase",
     },
     {
-      icon: <Shield size={32} />,
-      titleKey: 'fireSafetyTitle',
-      catchphraseKey: 'fireSafetyCatchphrase'
+      icon: <Shield size={32} className="text-[#0A2463]" />,
+      titleKey: "fireSafetyTitle",
+      catchphraseKey: "fireSafetyCatchphrase",
     },
     {
-      icon: <Settings size={32} />,
-      titleKey: 'rawMaterialsTitle',
-      catchphraseKey: 'rawMaterialsCatchphrase'
+      icon: <Settings size={32} className="text-[#0A2463]" />,
+      titleKey: "rawMaterialsTitle",
+      catchphraseKey: "rawMaterialsCatchphrase",
     },
     {
-      icon: <Settings size={32} />,
-      titleKey: 'metallurgyTitle',
-      catchphraseKey: 'metallurgyCatchphrase'
+      icon: <Settings size={32} className="text-[#0A2463]" />,
+      titleKey: "metallurgyTitle",
+      catchphraseKey: "metallurgyCatchphrase",
     },
     {
-      icon: <Droplets size={32} />,
-      titleKey: 'waterTechTitle',
-      catchphraseKey: 'waterTechCatchphrase'
+      icon: <Droplets size={32} className="text-[#0A2463]" />,
+      titleKey: "waterTechTitle",
+      catchphraseKey: "waterTechCatchphrase",
     },
     {
-      icon: <Lock size={32} />,
-      titleKey: 'securitySurveillanceTitle',
-      catchphraseKey: 'securitySurveillanceCatchphrase'
+      icon: <Lock size={32} className="text-[#0A2463]" />,
+      titleKey: "securitySurveillanceTitle",
+      catchphraseKey: "securitySurveillanceCatchphrase",
     },
     {
-      icon: <Laptop size={32} />,
-      titleKey: 'digitalTransformationTitle',
-      catchphraseKey: 'digitalTransformationCatchphrase'
+      icon: <Laptop size={32} className="text-[#0A2463]" />,
+      titleKey: "digitalTransformationTitle",
+      catchphraseKey: "digitalTransformationCatchphrase",
     },
     {
-      icon: <Zap size={32} />,
-      titleKey: 'renewableEnergyTitle',
-      catchphraseKey: 'renewableEnergyCatchphrase'
+      icon: <Zap size={32} className="text-[#0A2463]" />,
+      titleKey: "renewableEnergyTitle",
+      catchphraseKey: "renewableEnergyCatchphrase",
     },
     {
-      icon: <Settings size={32} />,
-      titleKey: 'infrastructureProjectsTitle',
-      catchphraseKey: 'infrastructureProjectsCatchphrase'
+      icon: <Settings size={32} className="text-[#0A2463]" />,
+      titleKey: "infrastructureProjectsTitle",
+      catchphraseKey: "infrastructureProjectsCatchphrase",
     },
     {
-      icon: <Shield size={32} />,
-      titleKey: 'industrialProtectionTitle',
-      catchphraseKey: 'industrialProtectionCatchphrase'
+      icon: <Shield size={32} className="text-[#0A2463]" />,
+      titleKey: "industrialProtectionTitle",
+      catchphraseKey: "industrialProtectionCatchphrase",
     },
     {
-      icon: <Home size={32} />,
-      titleKey: 'smartCitiesTitle',
-      catchphraseKey: 'smartCitiesCatchphrase'
+      icon: <Home size={32} className="text-[#0A2463]" />,
+      titleKey: "smartCitiesTitle",
+      catchphraseKey: "smartCitiesCatchphrase",
     },
   ];
 

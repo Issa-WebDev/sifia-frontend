@@ -18,41 +18,58 @@ const Navbar: React.FC = () => {
       <div className="container mx-auto px-4 flex justify-between items-center">
         {/* Logo */}
         <Link to="/" className="flex items-center">
-          <span className="text-2xl font-bold text-sifia-blue">SIFIA</span>
-          <span className="text-sifia-gold ml-1 font-medium">2025</span>
+          <img src="/logos.png" alt="SIFIA Logo" className="h-8 md:h-12 mr-4" />
         </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
           <div className="flex space-x-6">
-            <Link to="/" className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium">
-              {t('home')}
+            <Link
+              to="/"
+              className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium"
+            >
+              {t("home")}
             </Link>
-            <Link to="/about" className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium">
-              {t('about')}
+            <Link
+              to="/about"
+              className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium"
+            >
+              {t("about")}
             </Link>
-            <Link to="/offers" className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium">
-              {t('offers')}
+            <Link
+              to="/offers"
+              className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium"
+            >
+              {t("offers")}
             </Link>
-            <Link to="/register" className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium">
-              {t('register')}
+            <Link
+              to="/register"
+              className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium"
+            >
+              {t("register")}
             </Link>
-            <Link to="/blog" className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium">
-              {t('blog')}
+            <Link
+              to="/blog"
+              className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium"
+            >
+              {t("blog")}
             </Link>
-            <Link to="/contact" className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium">
-              {t('contact')}
+            <Link
+              to="/contact"
+              className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium"
+            >
+              {t("contact")}
             </Link>
           </div>
-          
+
           <LanguageSwitcher />
         </div>
 
         {/* Mobile menu button */}
         <div className="md:hidden flex items-center">
           <LanguageSwitcher />
-          <button 
-            onClick={toggleMenu} 
+          <button
+            onClick={toggleMenu}
             className="ml-4 text-sifia-blue focus:outline-none"
             aria-label="Toggle menu"
           >
@@ -65,47 +82,47 @@ const Navbar: React.FC = () => {
       {isOpen && (
         <div className="md:hidden bg-white py-4 px-4 shadow-inner animate-fade-in">
           <div className="flex flex-col space-y-4">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium"
               onClick={() => setIsOpen(false)}
             >
-              {t('home')}
+              {t("home")}
             </Link>
-            <Link 
-              to="/about" 
+            <Link
+              to="/about"
               className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium"
               onClick={() => setIsOpen(false)}
             >
-              {t('about')}
+              {t("about")}
             </Link>
-            <Link 
-              to="/offers" 
+            <Link
+              to="/offers"
               className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium"
               onClick={() => setIsOpen(false)}
             >
-              {t('offers')}
+              {t("offers")}
             </Link>
-            <Link 
-              to="/register" 
+            <Link
+              to="/register"
               className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium"
               onClick={() => setIsOpen(false)}
             >
-              {t('register')}
+              {t("register")}
             </Link>
-            <Link 
-              to="/blog" 
+            <Link
+              to="/blog"
               className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium"
               onClick={() => setIsOpen(false)}
             >
-              {t('blog')}
+              {t("blog")}
             </Link>
-            <Link 
-              to="/contact" 
+            <Link
+              to="/contact"
               className="text-sifia-blue hover:text-sifia-gold transition-colors font-medium"
               onClick={() => setIsOpen(false)}
             >
-              {t('contact')}
+              {t("contact")}
             </Link>
           </div>
         </div>

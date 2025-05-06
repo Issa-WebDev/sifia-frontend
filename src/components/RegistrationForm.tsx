@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import axios from "axios";
 import { ChevronRight, ChevronLeft, Check } from "lucide-react";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import { countries } from "countries-list";
 import {
   participantTypes,
@@ -55,7 +55,6 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
     additionalInfo: "",
   });
 
-  // Get countries list for select dropdown
   const countriesList = Object.entries(countries)
     .map(([code, data]) => ({
       code,
@@ -63,7 +62,6 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  // Extract package info from URL if present
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const participantTypeId = searchParams.get("type");
@@ -87,18 +85,16 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handlePhoneChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, phone: value }));
+  const handlePhoneChange = (value: string | undefined) => {
+    setFormData((prev) => ({ ...prev, phone: value || "" }));
   };
 
   const nextStep = () => {
     setFormStep((prev) => prev + 1);
-    window.scrollTo(0, 0);
   };
 
   const prevStep = () => {
     setFormStep((prev) => prev - 1);
-    window.scrollTo(0, 0);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -108,7 +104,6 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
     try {
       toast.info(t("creatingPaymentSession"));
 
-      // Get the selected package details
       const selectedPackage = getPackageById(
         formData.participantTypeId,
         formData.packageId
@@ -139,8 +134,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
       const { payment_url } = response.data;
       toast.success(t("redirectingToPayment"));
-
-      // Redirect to payment page
+      onRegistrationSuccess();
       window.location.href = payment_url;
     } catch (error) {
       toast.error(t("paymentInitiationFailed"));
@@ -149,7 +143,6 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
     }
   };
 
-  // Calculate price based on selections
   const calculatePrice = () => {
     if (!formData.participantTypeId || !formData.packageId) return null;
 
@@ -208,12 +201,6 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
     );
   };
 
-  const participantType = getParticipantTypeById(formData.participantTypeId);
-  const packageType = getPackageById(
-    formData.participantTypeId,
-    formData.packageId
-  );
-
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 max-w-3xl mx-auto">
       {renderStepIndicator()}
@@ -222,7 +209,6 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
         onSubmit={formStep === 4 ? handleSubmit : (e) => e.preventDefault()}
         className="space-y-6"
       >
-        {/* Step 1: Participant Type Selection */}
         {formStep === 1 && (
           <>
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
@@ -251,7 +237,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         setFormData((prev) => ({
                           ...prev,
                           participantTypeId: type.id,
-                          packageId: "", // Reset package when changing participant type
+                          packageId: "",
                         }))
                       }
                     >
@@ -287,7 +273,6 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
           </>
         )}
 
-        {/* Step 2: Package Selection */}
         {formStep === 2 && (
           <>
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
@@ -412,7 +397,6 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
           </>
         )}
 
-        {/* Step 3: Personal Information */}
         {formStep === 3 && (
           <>
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
@@ -485,18 +469,11 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     {t("phoneLabel")} *
                   </Label>
                   <PhoneInput
-                    country="ci"
+                    international
+                    defaultCountry="CI"
                     value={formData.phone}
                     onChange={handlePhoneChange}
-                    inputClass="!w-full !h-10 !rounded-md !border !border-gray-300"
-                    containerClass="w-full"
-                    buttonClass="!border-gray-300"
-                    enableAreaCodes={false} // Pour éviter la confusion
-                    countryCodeEditable={false} // Empêche l'utilisateur de modifier le +225
-                    inputProps={{
-                      required: true,
-                      maxLength: 29, // +225xxxxxxxxxx (13 avec le +)
-                    }}
+                    className="w-full"
                   />
                 </div>
               </div>
@@ -587,7 +564,6 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
           </>
         )}
 
-        {/* Step 4: Summary and Payment */}
         {formStep === 4 && (
           <>
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
@@ -622,22 +598,32 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 <div className="flex justify-between">
                   <span className="font-medium">{t("participationType")}:</span>
                   <span>
-                    {
-                      participantType?.name?.[
-                        language as keyof typeof participantType.name
-                      ]
-                    }
+                    {formData.participantTypeId &&
+                      (() => {
+                        const type = getParticipantTypeById(
+                          formData.participantTypeId
+                        );
+                        return (
+                          type?.name?.[language as keyof typeof type.name] ?? ""
+                        );
+                      })()}
                   </span>
                 </div>
 
                 <div className="flex justify-between">
                   <span className="font-medium">{t("packageType")}:</span>
                   <span>
-                    {
-                      packageType?.name?.[
-                        language as keyof typeof packageType.name
-                      ]
-                    }
+                    {formData.packageId &&
+                      formData.participantTypeId &&
+                      (() => {
+                        const pkg = getPackageById(
+                          formData.participantTypeId,
+                          formData.packageId
+                        );
+                        return (
+                          pkg?.name?.[language as keyof typeof pkg.name] ?? ""
+                        );
+                      })()}
                   </span>
                 </div>
 

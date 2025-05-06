@@ -18,7 +18,7 @@ const TeamMember: React.FC<TeamMemberProps> = ({ image, name, title, description
         <img 
           src={image} 
           alt={name} 
-          className="w-full h-full object-cover object-center"
+          className="w-full object-cover object-center"
         />
       </div>
       <CardHeader className="pb-2">
@@ -37,37 +37,37 @@ const TeamSection: React.FC = () => {
 
   const teamMembers = [
     {
-      image: '/lovable-uploads/22427548-6ddf-4727-9d4e-b85b24051043.png',
+      image: '/jean.png',
       nameKey: 'jeanMarcName',
       titleKey: 'jeanMarcTitle',
       descriptionKey: 'jeanMarcDescription'
     },
     {
-      image: '/lovable-uploads/f258c7e7-b82b-4090-9ceb-12b20f201e4a.png',
+      image: '/binta.png',
       nameKey: 'bintaName',
       titleKey: 'bintaTitle',
       descriptionKey: 'bintaDescription'
     },
     {
-      image: '/lovable-uploads/22427548-6ddf-4727-9d4e-b85b24051043.png', // Placeholder, will be updated later
+      image: '/maiga.png', // Placeholder, will be updated later
       nameKey: 'maigaName',
       titleKey: 'maigaTitle',
       descriptionKey: 'maigaDescription'
     },
     {
-      image: '/lovable-uploads/f258c7e7-b82b-4090-9ceb-12b20f201e4a.png', // Placeholder, will be updated later
+      image: '/nicerine.png', // Placeholder, will be updated later
       nameKey: 'nicerineName',
       titleKey: 'nicerineTitle',
       descriptionKey: 'nicerineDescription'
     },
     {
-      image: '/lovable-uploads/22427548-6ddf-4727-9d4e-b85b24051043.png', // Placeholder, will be updated later
+      image: '/assogba.png', // Placeholder, will be updated later
       nameKey: 'assogbaName',
       titleKey: 'assogbaTitle',
       descriptionKey: 'assogbaDescription'
     },
     {
-      image: '/lovable-uploads/f258c7e7-b82b-4090-9ceb-12b20f201e4a.png', // Placeholder, will be updated later
+      image: '/sfar.png', // Placeholder, will be updated later
       nameKey: 'sfarName',
       titleKey: 'sfarTitle',
       descriptionKey: 'sfarDescription'

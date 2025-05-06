@@ -17,8 +17,6 @@ const Register: React.FC = () => {
 
   const handleRegistrationSuccess = () => {
     setShowSuccessMessage(true);
-    // Scroll to top
-    window.scrollTo(0, 0);
   };
 
   return (
@@ -49,7 +47,9 @@ const Register: React.FC = () => {
               <p className="text-green-600 mb-4">
                 {t("registrationSuccessMessage")}
               </p>
-              <p className="text-gray-700">{t("registrationSuccessEmail")}</p>
+              <p className="text-gray-700">
+                {t("registrationSuccessEmail")}
+              </p>
               <div className="mt-6">
                 <button
                   onClick={() => navigate("/")}
@@ -60,9 +60,7 @@ const Register: React.FC = () => {
               </div>
             </div>
           ) : (
-            <RegistrationForm
-              onRegistrationSuccess={handleRegistrationSuccess}
-            />
+            <RegistrationForm onRegistrationSuccess={handleRegistrationSuccess} />
           )}
         </div>
       </main>

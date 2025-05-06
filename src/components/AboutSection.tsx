@@ -39,7 +39,7 @@ const AboutSection: React.FC = () => {
             <div className="relative">
               <div className="bg-sifia-blue/10 absolute -top-4 -left-4 w-full h-full rounded-lg"></div>
               <img 
-                src="https://images.unsplash.com/photo-1500673922987-e212871fec22" 
+                src="/apropos.png" 
                 alt="SIFIA Event" 
                 className="rounded-lg shadow-md object-cover w-full h-80 relative z-10"
               />
