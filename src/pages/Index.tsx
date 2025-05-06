@@ -5,7 +5,7 @@ import Hero from '../components/Hero';
 import AboutSection from '../components/AboutSection';
 import OffersSection from '../components/OffersSection';
 import ContactSection from '../components/ContactSection';
-import RegisterForm from '../components/RegisterForm';
+import RegisterForm from '../components/RegistrationForm';
 import Footer from '../components/Footer';
 import CountdownTimer from '../components/CountdownTimer';
 import PartnersCarousel from '../components/PartnersCarousel';
