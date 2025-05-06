@@ -495,7 +495,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     countryCodeEditable={false} // Empêche l'utilisateur de modifier le +225
                     inputProps={{
                       required: true,
-                      maxLength: 13, // +225xxxxxxxxxx (13 avec le +)
+                      maxLength: 19, // +225xxxxxxxxxx (13 avec le +)
                     }}
                   />
                 </div>
