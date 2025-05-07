@@ -28,6 +28,9 @@ type FormData = {
   phone: string;
   company: string;
   country: string;
+  postal: string;
+  city: string;
+  address: string;
   participantTypeId: string;
   packageId: string;
   sector: string;
@@ -49,6 +52,9 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
     phone: "",
     company: "",
     country: "",
+    postal: "",
+    city: "",
+    address: "",
     participantTypeId: "",
     packageId: "",
     sector: "",
@@ -172,7 +178,10 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
       formData.email !== "" &&
       formData.email.includes("@") &&
       formData.phone !== "" &&
-      formData.country !== ""
+      formData.country !== "" &&
+      formData.postal !== "" &&
+      formData.city !== "" &&
+      formData.address !== ""
     );
   };
 
@@ -418,6 +427,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleChange}
+                    placeholder="Prenom"
                     className="w-full"
                     required
                   />
@@ -436,6 +446,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleChange}
+                    placeholder="Nom"
                     className="w-full"
                     required
                   />
@@ -456,6 +467,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    placeholder="email@gmail.com"
                     className="w-full"
                     required
                   />
@@ -473,29 +485,73 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     defaultCountry="CI"
                     value={formData.phone}
                     onChange={handlePhoneChange}
+                    placeholder="xx-xx-xx-xx-xx"
                     className="w-full"
                   />
                 </div>
               </div>
 
+              {/* ajout */}
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <Label
                     className="block text-sifia-blue font-medium mb-2"
-                    htmlFor="company"
+                    htmlFor="postal"
                   >
-                    {t("companyLabel")}
+                    {t("postalLabel")} *
                   </Label>
                   <Input
                     type="text"
-                    id="company"
-                    name="company"
-                    value={formData.company}
+                    id="postal"
+                    name="postal"
+                    value={formData.postal}
                     onChange={handleChange}
+                    placeholder="00225"
                     className="w-full"
+                    required
                   />
                 </div>
 
+                <div>
+                  <Label
+                    className="block text-sifia-blue font-medium mb-2"
+                    htmlFor="city"
+                  >
+                    {t("cityLabel")} *
+                  </Label>
+                  <Input
+                    type="text"
+                    id="city"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    placeholder="Abidjan"
+                    className="w-full"
+                    required
+                  />
+                </div>
+              </div>
+              {/* ajout */}
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <Label
+                    className="block text-sifia-blue font-medium mb-2"
+                    htmlFor="address"
+                  >
+                    {t("addressLabel")} *
+                  </Label>
+                  <Input
+                    type="text"
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    placeholder="BP 0024"
+                    className="w-full"
+                    required
+                  />
+                </div>
                 <div>
                   <Label
                     className="block text-sifia-blue font-medium mb-2"
@@ -524,6 +580,24 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
               <div>
                 <Label
                   className="block text-sifia-blue font-medium mb-2"
+                  htmlFor="company"
+                >
+                  {t("companyLabel")}
+                </Label>
+                <Input
+                  type="text"
+                  id="company"
+                  name="company"
+                  value={formData.company}
+                  onChange={handleChange}
+                  placeholder="exemple"
+                  className="w-full"
+                />
+              </div>
+
+              <div>
+                <Label
+                  className="block text-sifia-blue font-medium mb-2"
                   htmlFor="sector"
                 >
                   {t("sectorLabel")}
@@ -534,6 +608,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   name="sector"
                   value={formData.sector}
                   onChange={handleChange}
+                  placeholder="exemple"
                   className="w-full"
                 />
               </div>
