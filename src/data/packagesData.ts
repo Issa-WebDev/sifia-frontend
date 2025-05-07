@@ -39,7 +39,7 @@ export const participantTypes: ParticipantType[] = [
           fr: "Forfait Basique",
         },
         price: {
-          fcfa: 1000000,
+          fcfa: 100,
         },
         features: {
           en: ["4 m² stand", "1 table & 2 chairs", "TV"],
