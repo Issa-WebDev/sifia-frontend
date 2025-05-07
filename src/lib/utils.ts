@@ -18,7 +18,7 @@ export function calculatePrice(
 ): number {
   const prices = {
     localExhibitor: {
-      basic: 1000000,
+      basic: 100,
       prestige: 2000000,
       gold: 5000000,
     },
