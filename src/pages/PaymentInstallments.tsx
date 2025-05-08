@@ -49,7 +49,7 @@ const PaymentInstallments: React.FC<PaymentInstallmentsProps> = ({
       setError(null);
       
       const response = await axios.get(
-        `${process.env.VITE_BACKEND_URL}/api/payment/installments/${registrationId}`
+        `${import.meta.env.VITE_BACKEND_URL}/api/payment/installments/${registrationId}`
       );
       
       if (response.data.success) {
@@ -73,7 +73,9 @@ const PaymentInstallments: React.FC<PaymentInstallmentsProps> = ({
       setError(null);
       
       const response = await axios.post(
-        `${process.env.VITE_BACKEND_URL}/api/payment/pay-installment/${installmentId}`
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/payment/pay-installment/${installmentId}`
       );
       
       if (response.data.success && response.data.payment_url) {
