@@ -85,7 +85,7 @@ const RegistrationForm = ({ onRegistrationSuccess }) => {
 
       // Submit registration
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/payment`,
+        `${process.env.VITE_BACKEND_URL}/api/payment`,
         registrationData
       );
 
