@@ -29,9 +29,9 @@ const PaymentPage = () => {
 
         let url;
         if (registrationId) {
-          url = `${process.env.REACT_APP_API_URL}/api/payment/verify?registration_id=${registrationId}`;
+          url = `${process.env.VITE_BACKEND_URL}/api/payment/verify?registration_id=${registrationId}`;
         } else if (transactionId) {
-          url = `${process.env.REACT_APP_API_URL}/api/payment/verify?transaction_id=${transactionId}`;
+          url = `${process.env.VITE_BACKEND_URL}/api/payment/verify?transaction_id=${transactionId}`;
         } else {
           throw new Error(t('missingPaymentIdentifier'));
         }
