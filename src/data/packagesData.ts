@@ -90,7 +90,7 @@ export const participantTypes: ParticipantType[] = [
           fr: "Forfait Or",
         },
         price: {
-          fcfa: 100,
+          fcfa: 5000000,
         },
         features: {
           en: [
@@ -137,7 +137,7 @@ export const participantTypes: ParticipantType[] = [
           fr: "Forfait Standard",
         },
         price: {
-          fcfa: 100,
+          fcfa: 2500000,
           usd: 3960,
         },
         features: {
@@ -168,7 +168,7 @@ export const participantTypes: ParticipantType[] = [
           fr: "Forfait Prestige",
         },
         price: {
-          fcfa: 100,
+          fcfa: 4000000,
           usd: 6350,
         },
         popular: true,
@@ -206,7 +206,7 @@ export const participantTypes: ParticipantType[] = [
           fr: "Forfait Or",
         },
         price: {
-          fcfa: 100,
+          fcfa: 6500000,
           usd: 10200,
         },
         features: {
@@ -256,7 +256,7 @@ export const participantTypes: ParticipantType[] = [
           fr: "Forfait Standard",
         },
         price: {
-          fcfa: 100,
+          fcfa: 350000,
           usd: 650,
         },
         features: {
@@ -291,7 +291,7 @@ export const participantTypes: ParticipantType[] = [
           fr: "Forfait VIP",
         },
         price: {
-          fcfa: 100,
+          fcfa: 550000,
           usd: 990,
         },
         popular: true,
@@ -327,7 +327,7 @@ export const participantTypes: ParticipantType[] = [
           fr: "Forfait VVIP",
         },
         price: {
-          fcfa: 100,
+          fcfa: 850000,
           usd: 1550,
         },
         features: {

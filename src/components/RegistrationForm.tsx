@@ -1,51 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import { useLanguage } from "../context/LanguageContext";
-import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
 import axios from "axios";
-import { ChevronRight, ChevronLeft, Check } from "lucide-react";
-import PhoneInput from "react-phone-number-input";
-import "react-phone-number-input/style.css";
-import { countries } from "countries-list";
+import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
 import {
   participantTypes,
   getParticipantTypeById,
   getPackageById,
 } from "../data/packagesData";
-import { formatPrice } from "../lib/utils";
+import { Loader2 } from "lucide-react";
 
-interface RegistrationFormProps {
-  onRegistrationSuccess: () => void;
-}
-
-type FormData = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  company: string;
-  country: string;
-  postal: string;
-  city: string;
-  address: string;
-  participantTypeId: string;
-  packageId: string;
-  sector: string;
-  additionalInfo: string;
-};
-
-const RegistrationForm: React.FC<RegistrationFormProps> = ({
-  onRegistrationSuccess,
-}) => {
+const RegistrationForm = ({ onRegistrationSuccess }) => {
   const { t, language } = useLanguage();
-  const location = useLocation();
-  const [formStep, setFormStep] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
@@ -61,732 +29,423 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
     additionalInfo: "",
   });
 
-  const countriesList = Object.entries(countries)
-    .map(([code, data]) => ({
-      code,
-      name: data.name,
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+  const [availablePackages, setAvailablePackages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
+  // Set available packages based on selected participant type
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const participantTypeId = searchParams.get("type");
-    const packageId = searchParams.get("package");
-
-    if (participantTypeId) {
-      setFormData((prev) => ({ ...prev, participantTypeId }));
+    if (formData.participantTypeId) {
+      const participantType = getParticipantTypeById(
+        formData.participantTypeId
+      );
+      if (participantType) {
+        setAvailablePackages(participantType.packages);
+        // Reset package selection when participant type changes
+        setFormData((prev) => ({ ...prev, packageId: "" }));
+      }
     }
+  }, [formData.participantTypeId]);
 
-    if (packageId) {
-      setFormData((prev) => ({ ...prev, packageId }));
-    }
-  }, [location.search]);
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handlePhoneChange = (value: string | undefined) => {
-    setFormData((prev) => ({ ...prev, phone: value || "" }));
-  };
-
-  const nextStep = () => {
-    setFormStep((prev) => prev + 1);
-  };
-
-  const prevStep = () => {
-    setFormStep((prev) => prev - 1);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
+
+    // Get participant type and package details
+    const participantType = getParticipantTypeById(formData.participantTypeId);
+    const packageType = getPackageById(
+      formData.participantTypeId,
+      formData.packageId
+    );
+
+    if (!participantType || !packageType) {
+      setError(t("invalidSelection"));
+      setLoading(false);
+      return;
+    }
 
     try {
-      toast.info(t("creatingPaymentSession"));
-
-      const selectedPackage = getPackageById(
-        formData.participantTypeId,
-        formData.packageId
-      );
-      const participantType = getParticipantTypeById(
-        formData.participantTypeId
-      );
-
-      if (!selectedPackage || !participantType) {
-        throw new Error("Invalid package selection");
-      }
-
-      const paymentData = {
+      // Prepare registration data
+      const registrationData = {
         ...formData,
         participantType:
-          participantType.name[language as keyof typeof participantType.name],
+          language === "en" ? participantType.name.en : participantType.name.fr,
         packageName:
-          selectedPackage.name[language as keyof typeof selectedPackage.name],
-        amount: selectedPackage.price.fcfa,
-        currency: "XOF",
+          language === "en" ? packageType.name.en : packageType.name.fr,
+        amount: packageType.price.fcfa,
+        currency: "FCFA",
         language,
       };
 
+      // Submit registration
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/payment`,
-        paymentData
+        `${process.env.REACT_APP_API_URL}/api/payment`,
+        registrationData
       );
 
-      const { payment_url } = response.data;
-      toast.success(t("redirectingToPayment"));
-      onRegistrationSuccess();
-      window.location.href = payment_url;
-    } catch (error) {
-      toast.error(t("paymentInitiationFailed"));
-      console.error("Payment error:", error);
+      if (response.data.success) {
+        // Check if this requires installment payments
+        if (response.data.requires_installments) {
+          // Navigate to installment payment page
+          navigate(`/payment/${response.data.registration_id}`);
+        } else if (response.data.payment_url) {
+          // Redirect to CinetPay payment page
+          window.location.href = response.data.payment_url;
+        } else {
+          setError(t("unexpectedResponse"));
+        }
+      } else {
+        setError(response.data.message || t("registrationFailed"));
+      }
+    } catch (err) {
+      console.error("Registration error:", err);
+      setError(err.response?.data?.message || t("registrationError"));
+    } finally {
       setLoading(false);
     }
   };
 
-  const calculatePrice = () => {
-    if (!formData.participantTypeId || !formData.packageId) return null;
-
-    const selectedPackage = getPackageById(
-      formData.participantTypeId,
-      formData.packageId
-    );
-    if (!selectedPackage) return null;
-
-    return selectedPackage.price;
-  };
-
-  const price = calculatePrice();
-
-  const validateStep1 = () => {
-    return formData.participantTypeId !== "";
-  };
-
-  const validateStep2 = () => {
-    return formData.packageId !== "";
-  };
-
-  const validateStep3 = () => {
-    return (
-      formData.firstName !== "" &&
-      formData.lastName !== "" &&
-      formData.email !== "" &&
-      formData.email.includes("@") &&
-      formData.phone !== "" &&
-      formData.country !== "" &&
-      formData.postal !== "" &&
-      formData.city !== "" &&
-      formData.address !== ""
-    );
-  };
-
-  const renderStepIndicator = () => {
-    return (
-      <div className="flex items-center justify-center mb-8">
-        {[1, 2, 3, 4].map((step) => (
-          <React.Fragment key={step}>
-            <div
-              className={`w-10 h-10 rounded-full ${
-                formStep >= step ? "bg-sifia-blue" : "bg-gray-300"
-              } text-white flex items-center justify-center font-bold`}
-            >
-              {formStep > step ? <Check size={20} /> : step}
-            </div>
-            {step < 4 && (
-              <div
-                className={`h-1 w-12 ${
-                  formStep > step ? "bg-sifia-blue" : "bg-gray-300"
-                } mx-2`}
-              ></div>
-            )}
-          </React.Fragment>
-        ))}
-      </div>
-    );
+  // Calculate price display
+  const getSelectedPackagePrice = () => {
+    if (formData.participantTypeId && formData.packageId) {
+      const packageType = getPackageById(
+        formData.participantTypeId,
+        formData.packageId
+      );
+      if (packageType) {
+        return new Intl.NumberFormat(
+          language === "en" ? "en-US" : "fr-FR"
+        ).format(packageType.price.fcfa);
+      }
+    }
+    return "";
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 max-w-3xl mx-auto">
-      {renderStepIndicator()}
+    <div
+      className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6 md:p-8"
+      id="registration"
+    >
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        {t("registrationFormTitle")}
+      </h2>
 
-      <form
-        onSubmit={formStep === 4 ? handleSubmit : (e) => e.preventDefault()}
-        className="space-y-6"
-      >
-        {formStep === 1 && (
-          <>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              {t("step1Title")}
-            </h2>
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
+          {error}
+        </div>
+      )}
 
-            <div className="space-y-6">
-              <div>
-                <Label
-                  className="block text-sifia-blue font-medium mb-2"
-                  htmlFor="participantTypeId"
-                >
-                  {t("participationTypeLabel")} *
-                </Label>
+      <form onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* Personal Information */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+              {t("personalInformation")}
+            </h3>
 
-                <div className="grid sm:grid-cols-3 gap-4 mt-4">
-                  {participantTypes.map((type) => (
-                    <div
-                      key={type.id}
-                      className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                        formData.participantTypeId === type.id
-                          ? "border-sifia-blue bg-sifia-blue/5"
-                          : "border-gray-300 hover:border-gray-400"
-                      }`}
-                      onClick={() =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          participantTypeId: type.id,
-                          packageId: "",
-                        }))
-                      }
-                    >
-                      <div className="flex items-center justify-center h-12 mb-2 text-2xl">
-                        {type.id === "local-exhibitor"
-                          ? "🏢"
-                          : type.id === "international-exhibitor"
-                          ? "🌍"
-                          : "🧑"}
-                      </div>
-                      <h3 className="font-medium text-center">
-                        {type.name[language as keyof typeof type.name]}
-                      </h3>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-4 flex justify-end">
-                <button
-                  type="button"
-                  className={`sifia-button-primary ${
-                    !validateStep1() ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  disabled={!validateStep1()}
-                  onClick={nextStep}
-                >
-                  <span>{t("nextBtn")}</span>
-                  <ChevronRight size={18} />
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-
-        {formStep === 2 && (
-          <>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              {t("step2Title")}
-            </h2>
-
-            <div className="space-y-6">
-              <div>
-                <Label
-                  className="block text-sifia-blue font-medium mb-2"
-                  htmlFor="packageId"
-                >
-                  {t("packageLabel")} *
-                </Label>
-
-                {formData.participantTypeId && (
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                    {getParticipantTypeById(
-                      formData.participantTypeId
-                    )?.packages.map((pkg) => (
-                      <div
-                        key={pkg.id}
-                        className={`border rounded-lg p-4 cursor-pointer transition-all relative ${
-                          formData.packageId === pkg.id
-                            ? "border-sifia-blue bg-sifia-blue/5"
-                            : pkg.popular
-                            ? "border-sifia-blue"
-                            : "border-gray-300 hover:border-gray-400"
-                        } ${
-                          pkg.id === "gold"
-                            ? "bg-gradient-to-b from-amber-50 to-white"
-                            : ""
-                        }`}
-                        onClick={() =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            packageId: pkg.id,
-                          }))
-                        }
-                      >
-                        {pkg.popular && (
-                          <div className="absolute top-0 right-0 bg-sifia-blue text-white px-3 py-1 text-xs rounded-bl-lg rounded-tr-lg">
-                            {t("popular")}
-                          </div>
-                        )}
-
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="font-medium">
-                            {pkg.name[language as keyof typeof pkg.name]}
-                          </h3>
-                          <span className="text-sifia-gold">
-                            {pkg.id === "basic" || pkg.id === "standard"
-                              ? "🥉"
-                              : pkg.id === "prestige" || pkg.id === "vip"
-                              ? "🥈"
-                              : "🥇"}
-                          </span>
-                        </div>
-
-                        <div className="text-xl font-bold mb-4 text-sifia-blue">
-                          {formatPrice(pkg.price.fcfa)}
-                          {pkg.price.usd && (
-                            <span className="block text-sm font-normal text-gray-600">
-                              {`${pkg.price.usd}$`}
-                            </span>
-                          )}
-                        </div>
-
-                        <ul className="space-y-2 mb-4 text-sm">
-                          {pkg.features[language as keyof typeof pkg.features]
-                            .slice(0, 4)
-                            .map((feature, index) => (
-                              <li key={index} className="flex items-start">
-                                <span className="text-sifia-gold mr-2">✓</span>
-                                <span>{feature}</span>
-                              </li>
-                            ))}
-                          {pkg.features[language as keyof typeof pkg.features]
-                            .length > 4 && (
-                            <li className="text-sm text-gray-500 italic">
-                              +{" "}
-                              {pkg.features[
-                                language as keyof typeof pkg.features
-                              ].length - 4}{" "}
-                              {t("moreFeatures")}
-                            </li>
-                          )}
-                        </ul>
-
-                        {formData.packageId === pkg.id && (
-                          <div className="absolute inset-0 border-2 border-sifia-blue rounded-lg pointer-events-none"></div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="pt-4 flex justify-between">
-                <button
-                  type="button"
-                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center"
-                  onClick={prevStep}
-                >
-                  <ChevronLeft size={18} />
-                  <span>{t("backBtn")}</span>
-                </button>
-
-                <button
-                  type="button"
-                  className={`sifia-button-primary flex items-center ${
-                    !validateStep2() ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  disabled={!validateStep2()}
-                  onClick={nextStep}
-                >
-                  <span>{t("nextBtn")}</span>
-                  <ChevronRight size={18} />
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-
-        {formStep === 3 && (
-          <>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              {t("step3Title")}
-            </h2>
-
-            <div className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <Label
-                    className="block text-sifia-blue font-medium mb-2"
-                    htmlFor="firstName"
-                  >
-                    {t("firstNameLabel")} *
-                  </Label>
-                  <Input
-                    type="text"
-                    id="firstName"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    placeholder="Prenom"
-                    className="w-full"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label
-                    className="block text-sifia-blue font-medium mb-2"
-                    htmlFor="lastName"
-                  >
-                    {t("lastNameLabel")} *
-                  </Label>
-                  <Input
-                    type="text"
-                    id="lastName"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    placeholder="Nom"
-                    className="w-full"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <Label
-                    className="block text-sifia-blue font-medium mb-2"
-                    htmlFor="email"
-                  >
-                    {t("emailLabel")} *
-                  </Label>
-                  <Input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="email@gmail.com"
-                    className="w-full"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label
-                    className="block text-sifia-blue font-medium mb-2"
-                    htmlFor="phone"
-                  >
-                    {t("phoneLabel")} *
-                  </Label>
-                  <PhoneInput
-                    international
-                    defaultCountry="CI"
-                    value={formData.phone}
-                    onChange={handlePhoneChange}
-                    placeholder="xx-xx-xx-xx-xx"
-                    className="w-full"
-                  />
-                </div>
-              </div>
-
-              {/* ajout */}
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <Label
-                    className="block text-sifia-blue font-medium mb-2"
-                    htmlFor="postal"
-                  >
-                    {t("postalLabel")} *
-                  </Label>
-                  <Input
-                    type="text"
-                    id="postal"
-                    name="postal"
-                    value={formData.postal}
-                    onChange={handleChange}
-                    placeholder="00225"
-                    className="w-full"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label
-                    className="block text-sifia-blue font-medium mb-2"
-                    htmlFor="city"
-                  >
-                    {t("cityLabel")} *
-                  </Label>
-                  <Input
-                    type="text"
-                    id="city"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    placeholder="Abidjan"
-                    className="w-full"
-                    required
-                  />
-                </div>
-              </div>
-              {/* ajout */}
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <Label
-                    className="block text-sifia-blue font-medium mb-2"
-                    htmlFor="address"
-                  >
-                    {t("addressLabel")} *
-                  </Label>
-                  <Input
-                    type="text"
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    placeholder="BP 0024"
-                    className="w-full"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label
-                    className="block text-sifia-blue font-medium mb-2"
-                    htmlFor="country"
-                  >
-                    {t("countryLabel")} *
-                  </Label>
-                  <Select
-                    id="country"
-                    name="country"
-                    value={formData.country}
-                    onChange={handleChange}
-                    className="w-full"
-                    required
-                  >
-                    <option value="">{t("selectCountry")}</option>
-                    {countriesList.map((country) => (
-                      <option key={country.code} value={country.code}>
-                        {country.name}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-              </div>
-
-              <div>
-                <Label
-                  className="block text-sifia-blue font-medium mb-2"
-                  htmlFor="company"
-                >
-                  {t("companyLabel")}
-                </Label>
-                <Input
-                  type="text"
-                  id="company"
-                  name="company"
-                  value={formData.company}
-                  onChange={handleChange}
-                  placeholder="exemple"
-                  className="w-full"
-                />
-              </div>
-
-              <div>
-                <Label
-                  className="block text-sifia-blue font-medium mb-2"
-                  htmlFor="sector"
-                >
-                  {t("sectorLabel")}
-                </Label>
-                <Input
-                  type="text"
-                  id="sector"
-                  name="sector"
-                  value={formData.sector}
-                  onChange={handleChange}
-                  placeholder="exemple"
-                  className="w-full"
-                />
-              </div>
-
-              <div className="flex justify-between pt-4">
-                <button
-                  type="button"
-                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center"
-                  onClick={prevStep}
-                >
-                  <ChevronLeft size={18} />
-                  <span>{t("backBtn")}</span>
-                </button>
-
-                <button
-                  type="button"
-                  className={`sifia-button-primary flex items-center ${
-                    !validateStep3() ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  disabled={!validateStep3()}
-                  onClick={nextStep}
-                >
-                  <span>{t("nextBtn")}</span>
-                  <ChevronRight size={18} />
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-
-        {formStep === 4 && (
-          <>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              {t("step4Title")}
-            </h2>
-
-            {formData.participantTypeId === "exhibitor" && (
-              <div className="mb-6">
-                <Label
-                  className="block text-sifia-blue font-medium mb-2"
-                  htmlFor="additionalInfo"
-                >
-                  {t("additionalInfoLabel")}
-                </Label>
-                <textarea
-                  id="additionalInfo"
-                  name="additionalInfo"
-                  value={formData.additionalInfo}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-sifia-blue focus:border-transparent outline-none"
-                  rows={4}
-                ></textarea>
-              </div>
-            )}
-
-            <div className="bg-gray-50 p-5 rounded-lg mb-6">
-              <h3 className="font-bold text-lg mb-4 text-sifia-blue border-b pb-2">
-                {t("registrationSummary")}
-              </h3>
-
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="font-medium">{t("participationType")}:</span>
-                  <span>
-                    {formData.participantTypeId &&
-                      (() => {
-                        const type = getParticipantTypeById(
-                          formData.participantTypeId
-                        );
-                        return (
-                          type?.name?.[language as keyof typeof type.name] ?? ""
-                        );
-                      })()}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="font-medium">{t("packageType")}:</span>
-                  <span>
-                    {formData.packageId &&
-                      formData.participantTypeId &&
-                      (() => {
-                        const pkg = getPackageById(
-                          formData.participantTypeId,
-                          formData.packageId
-                        );
-                        return (
-                          pkg?.name?.[language as keyof typeof pkg.name] ?? ""
-                        );
-                      })()}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="font-medium">{t("name")}:</span>
-                  <span>
-                    {formData.firstName} {formData.lastName}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="font-medium">{t("email")}:</span>
-                  <span>{formData.email}</span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="font-medium">{t("phone")}:</span>
-                  <span>{formData.phone}</span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="font-medium">{t("country")}:</span>
-                  <span>
-                    {formData.country &&
-                      countries[formData.country as keyof typeof countries]
-                        ?.name}
-                  </span>
-                </div>
-
-                {formData.company && (
-                  <div className="flex justify-between">
-                    <span className="font-medium">{t("company")}:</span>
-                    <span>{formData.company}</span>
-                  </div>
-                )}
-
-                {formData.sector && (
-                  <div className="flex justify-between">
-                    <span className="font-medium">{t("sector")}:</span>
-                    <span>{formData.sector}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-gray-200">
-                <div className="flex justify-between items-center text-lg font-bold">
-                  <span>{t("totalAmount")}:</span>
-                  <span className="text-sifia-blue">
-                    {price ? formatPrice(price.fcfa) : "-"}
-                    {price?.usd && (
-                      <span className="block text-sm font-normal text-gray-600 text-right">
-                        {`${price.usd}$`}
-                      </span>
-                    )}
-                  </span>
-                </div>
-              </div>
+            <div>
+              <label
+                htmlFor="firstName"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {t("firstName")} *
+              </label>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
             </div>
 
-            <div className="border-t border-gray-200 pt-4 mb-6">
-              <p className="text-sm text-gray-500 mb-4">
-                {t("termsAgreement")}
+            <div>
+              <label
+                htmlFor="lastName"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {t("lastName")} *
+              </label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {t("email")} *
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {t("phone")} *
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="company"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {t("company")}
+              </label>
+              <input
+                type="text"
+                id="company"
+                name="company"
+                value={formData.company}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="sector"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {t("sector")}
+              </label>
+              <input
+                type="text"
+                id="sector"
+                name="sector"
+                value={formData.sector}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          {/* Address and Package Selection */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+              {t("addressAndPackage")}
+            </h3>
+
+            <div>
+              <label
+                htmlFor="country"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {t("country")} *
+              </label>
+              <input
+                type="text"
+                id="country"
+                name="country"
+                value={formData.country}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="city"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {t("city")} *
+              </label>
+              <input
+                type="text"
+                id="city"
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="postal"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {t("postal")} *
+              </label>
+              <input
+                type="text"
+                id="postal"
+                name="postal"
+                value={formData.postal}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="address"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {t("address")} *
+              </label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="participantTypeId"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {t("participantType")} *
+              </label>
+              <select
+                id="participantTypeId"
+                name="participantTypeId"
+                value={formData.participantTypeId}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">{t("selectParticipantType")}</option>
+                {participantTypes.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {language === "en" ? type.name.en : type.name.fr}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label
+                htmlFor="packageId"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {t("package")} *
+              </label>
+              <select
+                id="packageId"
+                name="packageId"
+                value={formData.packageId}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+                disabled={!formData.participantTypeId}
+              >
+                <option value="">{t("selectPackage")}</option>
+                {availablePackages.map((pkg) => (
+                  <option key={pkg.id} value={pkg.id}>
+                    {language === "en" ? pkg.name.en : pkg.name.fr} -{" "}
+                    {new Intl.NumberFormat(
+                      language === "en" ? "en-US" : "fr-FR"
+                    ).format(pkg.price.fcfa)}{" "}
+                    FCFA
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Additional Information */}
+        <div className="mb-6">
+          <label
+            htmlFor="additionalInfo"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            {t("additionalInfo")}
+          </label>
+          <textarea
+            id="additionalInfo"
+            name="additionalInfo"
+            value={formData.additionalInfo}
+            onChange={handleChange}
+            rows={4}
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          ></textarea>
+        </div>
+
+        {/* Selected Package Price */}
+        {formData.participantTypeId && formData.packageId && (
+          <div className="bg-blue-50 p-4 rounded-md mb-6">
+            <p className="text-blue-700">
+              {t("selectedPackagePrice")}:
+              <span className="font-bold ml-2">
+                {getSelectedPackagePrice()} FCFA
+              </span>
+            </p>
+
+            {/* Installment payment notice if price > 999,999 FCFA */}
+            {getPackageById(formData.participantTypeId, formData.packageId)
+              ?.price.fcfa > 999999 && (
+              <p className="text-blue-700 mt-2">
+                <span className="font-semibold">{t("installmentNotice")}</span>{" "}
+                {t("installmentExplanation")}
               </p>
-            </div>
-
-            <div className="flex justify-between pt-4">
-              <button
-                type="button"
-                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center"
-                onClick={prevStep}
-              >
-                <ChevronLeft size={18} />
-                <span>{t("backBtn")}</span>
-              </button>
-
-              <button
-                type="submit"
-                className="sifia-button-primary flex items-center"
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="inline-block animate-spin mr-2">⟳</span>
-                ) : null}
-                <span>{t("submitAndPayBtn")}</span>
-              </button>
-            </div>
-          </>
+            )}
+          </div>
         )}
+
+        {/* Submit Button */}
+        <div className="flex justify-center">
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <span className="flex items-center">
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                {t("processing")}
+              </span>
+            ) : (
+              t("proceedToPayment")
+            )}
+          </button>
+        </div>
       </form>
     </div>
   );
