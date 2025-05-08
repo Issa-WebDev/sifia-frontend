@@ -45,7 +45,7 @@ const AdminInstallmentReport = () => {
 
       const response = await axios.get(
         `${
-          process.env.REACT_APP_API_URL
+          import.meta.env.VITE_BACKEND_URL
         }/api/admin/registrations?${params.toString()}`,
         {
           headers: {
