@@ -53,3 +53,6 @@ export function formatPrice(price: number, currency: string = "XOF"): string {
   // Default FCFA formatting
   return new Intl.NumberFormat("fr-FR").format(price) + " " + currency;
 }
+
+
+

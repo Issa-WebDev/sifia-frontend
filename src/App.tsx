@@ -14,6 +14,9 @@ import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
+import AdminInstallmentReport from "./pages/AdminInstallmentReport"
+import PaymentPage from "./pages/PaymentPage";
+import PaymentStatusIndicators from "./pages/PaymentStatusIndicator";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +34,9 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/admin" element={<AdminInstallmentReport />} />
+            <Route path="/payment-page" element={<PaymentPage />} />
+            <Route path="/payement-status" element={<PaymentStatusIndicators />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-failure" element={<PaymentFailure />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
